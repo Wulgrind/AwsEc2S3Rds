@@ -77,7 +77,7 @@
     - name: Configure object storage connection string for GitLab
       lineinfile:
         path: /etc/gitlab/gitlab.rb
-        line: "gitlab_rails['object_store']['connection'] = { provider: 'AWS', region: 'eu-west-3b', aws_access_key_id: 'AKIAQNKHGBBF26KLQVGT', aws_secret_access_key: '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', endpoint: 's3.amazonaws.com', path_style: true, bucket: 's3quentin' }"
+        line: "gitlab_rails['object_store']['connection'] = { provider: 'AWS', region: 'eu-west-3b', aws_access_key_id: 'dummy', aws_secret_access_key: 'dummy', endpoint: 's3.amazonaws.com', path_style: true, bucket: 's3quentin' }"
         regexp: "^#?gitlab_rails\\['object_store'\\]\\['connection'\\]"
         state: present
         
