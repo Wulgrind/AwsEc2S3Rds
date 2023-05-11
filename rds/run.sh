@@ -1,0 +1,15 @@
+aws rds create-db-instance \
+--db-instance-identifier databaseQuentin \
+--db-name gitlabhq_production \
+--db-instance-class db.t3.micro \
+--engine postgres \
+--engine-version 14.6 \
+--master-username postgres \
+--master-user-password testquentin \
+--allocated-storage 20 \
+--vpc-security-group-ids sg-03719af2ea3325ddc \
+--db-subnet-group-name rds-ec2-db-subnet-group-1 \
+--availability-zone eu-west-3b \
+--no-publicly-accessible \
+--no-multi-az \
+--auto-minor-version-upgrade \

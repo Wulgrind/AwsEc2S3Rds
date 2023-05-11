@@ -1,0 +1,101 @@
+- name: Install GitLab CE on Ubuntu
+  hosts: ec2
+  become: true
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - openssh-server
+          - ca-certificates
+          - postfix
+        state: present
+
+    - name: Import GitLab GPG key
+      apt_key:
+        url: https://packages.gitlab.com/gpg.key
+        state: present
+
+    - name: Add GitLab package repository
+      apt_repository:
+        repo: 'deb https://packages.gitlab.com/gitlab/gitlab-ce/ubuntu/ xenial main'
+        state: present
+
+    - name: Install GitLab CE
+      command : apt install gitlab-ce -y
+
+    - name: Configure Redis adress for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['redis_host'] = 'quentinrepgroup.32ecv3.ng.0001.euw3.cache.amazonaws.com'"
+        regexp: "^#?gitlab_rails\\['redis_host'\\]"
+        state: present
+
+    - name: Configure Redis port for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['redis_port'] = '6379'"
+        regexp: "^#?gitlab_rails\\['redis_port'\\]"
+        state: present
+
+    - name: Configure database for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['db_adapter'] = 'postgresql'"
+        regexp: "^#?gitlab_rails\\['db_adapter'\\]"
+        state: present
+
+    - name: Configure database username for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['db_username'] = 'postgres'"
+        regexp: "^#?gitlab_rails\\['db_username'\\]"
+        state: present
+
+    - name: Configure database password for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['db_password'] = 'testquentin'"
+        regexp: "^#?gitlab_rails\\['db_password'\\]"
+        state: present
+
+    - name: Configure database connection string for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['db_host'] = 'databasequentin.cmteno1mz28f.eu-west-3.rds.amazonaws.com'"
+        regexp: "^#?gitlab_rails\\['db_host'\\]"
+        state: present
+
+    - name: Configure object storage for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['object_store']['enabled'] = true"
+        regexp: "^#?gitlab_rails\\['object_store'\\]\\['enabled'\\]"
+        state: present
+
+    - name: Configure object storage connection string for GitLab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "gitlab_rails['object_store']['connection'] = { provider: 'AWS', region: 'eu-west-3b', aws_access_key_id: 'AKIAQNKHGBBF26KLQVGT', aws_secret_access_key: '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', endpoint: 's3.amazonaws.com', path_style: true, bucket: 's3quentin' }"
+        regexp: "^#?gitlab_rails\\['object_store'\\]\\['connection'\\]"
+        state: present
+        
+    - name: Configure multiple datas for gitlab
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "{{ item.line }}"
+        regexp: "{{ item.regexp }}"
+        state: "{{ item.state }}"
+      loop:
+        - { line: "gitlab_rails['object_store']['objects']['artifacts']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['artifacts'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['external_diffs']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['external_diffs'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['lfs']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['lfs'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['uploads']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['uploads'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['packages']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['packages'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['dependency_proxy']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['dependency_proxy'\\]\\['bucket'\\]", state: present }
+        - { line: "gitlab_rails['object_store']['objects']['terraform_state']['bucket'] = 's3quentin'", regexp: "^#?gitlab_rails\\['object_store'\\]\\['objects'\\]\\['terraform_state'\\]\\['bucket'\\]", state: present }
+      become: true
+
+    - name: Reconfigure GitLab
+      command: gitlab-ctl reconfigure

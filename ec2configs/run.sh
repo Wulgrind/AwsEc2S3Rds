@@ -1,0 +1,1 @@
+ansible-playbook -i hosts ec2config.yaml

@@ -1,0 +1,1 @@
+aws s3api create-bucket --bucket s3quentin --region eu-west-3 --create-bucket-configuration LocationConstraint=eu-west-3
