@@ -1,0 +1,15 @@
+aws elasticache create-replication-group \
+--replication-group-id quentinRepGroup \
+--replication-group-description "Replication Group for Quentin" \
+--engine redis \
+--cache-node-type cache.t4g.micro \
+--num-node-groups 1 \
+--replicas-per-node-group 1 \
+--cache-subnet-group-name sg-1682424900825 \
+--security-group-ids sg-03719af2ea3325ddc \
+--preferred-maintenance-window sun:01:00-sun:02:00 \
+--engine-version 6.x \
+--port 6379 \
+--automatic-failover-enabled \
+--auto-minor-version-upgrade \
+--notification-topic-arn arn:aws:sns:eu-west-3:028603451467:quentin-topic
